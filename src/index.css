@@ -36,7 +36,7 @@
     }
      
     .form_input{
-        @apply w-full px-4 py-3 border border-solid border-[#0066ff61] focus:outline-none focus:border-primarycolor text-[14px] leading-6
+        @apply w-full px-4 py-3 border border-solid border-[#0066ff61] focus:outline-none focus:border-primarycolor text-[14px] leading-6 text-headingcolor placeholder:text-textColor cursor-pointer rounded-md;
     }
 }
 
