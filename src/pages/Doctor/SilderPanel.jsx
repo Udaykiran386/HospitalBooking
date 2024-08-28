@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
+import Modal from 'react-modal'
 
 const SilderPanel = () => {
+    const [Visable,setVisable] = useState(false);
   return (
     <div className='shadow-panelShadow p-3 lg:p-5 rounded-md'>
         <div className='flex items-center justify-between'>
@@ -42,7 +44,11 @@ const SilderPanel = () => {
                 </li>
             </ul>
         </div>
-        <button className='btn px-2 w-full rounded-md'>Book Appointment</button>
+        <button onClick={()=>setVisable(true)} className='btn px-2 w-full rounded-md'>Book Appointment</button>
+        <Modal isOpen={Visable} onRequestClose={()=>setVisable(false)}>
+            <h1>hello</h1>
+            <button className='btn' onClick={()=>setVisable(false)}>Close</button>
+        </Modal>
     </div>
   )
 }
