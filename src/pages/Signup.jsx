@@ -1,20 +1,26 @@
 import React, { useState } from 'react'
 import SignupImg from '../assets/signup.gif'
 import avatarDoctor from '../assets/doctor-img02.png'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
+import uploadImageToCloudinary from '../utile/uploadCloudinary'
+import { toast } from 'react-toastify'
+import { BiLoaderCircle } from 'react-icons/bi'
 
 const Signup = () => {
 
   const [selectedFile,setSelectedFile] = useState(null)
   const [previewURL,setPreviewURL] = useState("")
+  const[loading,setLoading]=useState(false)
   const [formData,setFormData] =useState({
     name:'',
     email:'',
     password:'',
     photo:selectedFile,
     gender:'',
-    role:'Patient'
+    role:'Patient'  
   })
+
+  const navigate = useNavigate()
 
   const handleInputChange = e=>{
     setFormData({...formData,[e.target.name]:e.target.value})
@@ -22,14 +28,43 @@ const Signup = () => {
 
   const handleFileInputChange =async(event)=>{
     const file = event.target.files[0]
+    
+    const data = await uploadImageToCloudinary(file)
+    
 
+    setPreviewURL(data.url);
+    setSelectedFile(data.url);
+    setFormData({...formData,photo: data.url});
 
     // for the api
-    console.log(file)
+    
   }
 
   const submitHandler = async event =>{
     event.preventDefault()
+    setLoading(true)
+    try {
+      const res = await fetch('http://localhost:8080/account/save',{
+        method:'POST',
+        headers:{
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify(formData)
+      })
+      const {message} = await res.json()
+      console.log('response data : ',)
+
+      if(!res.ok){
+        throw new Error(message)
+      }
+
+      setLoading(false)
+      toast.success(message)
+      navigate('/login')
+    } catch (error) {
+      toast.error(error.message)
+      setLoading(false)
+    }
   }
 
   return (
@@ -92,6 +127,7 @@ const Signup = () => {
                     onChange={handleInputChange}
                     className='text-textColor text-[15px] leading-7 font-semibold px-4 py-3 focus:outline-none'
                   >
+                    <option value="">Select</option>
                     <option value="patient">Patient</option>
                     <option value="doctor">Doctor</option>
                   </select>
@@ -118,9 +154,12 @@ const Signup = () => {
               </div>
 
               <div className="mb-5 flex items-center gap-3">
-                <figure className='w-[60px] h-[60px] rounded-full border-2 border-solid border-primarycolor flex items-center justify-center'>
-                  <img src={avatarDoctor} alt="" className='w-full rounded-full' />
-                </figure>
+
+                { selectedFile && (<figure className='w-[60px] h-[60px] rounded-full border-2 border-solid border-primarycolor flex items-center justify-center overflow-hidden'>
+                  <img src={previewURL} alt="" className='w-full rounded-full' />
+                </figure>)}
+
+
                 <div className='relative w-[130px] h-[50px] '>
                   <input type="file"  name='photo'  id='customFile' accept='.jpg, .png, .jpeg' onChange={handleFileInputChange} className='absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer'/>
                   <label htmlFor="customFile" className='absolute top-0 left-0 w-full h-full flex items-center 
@@ -130,8 +169,8 @@ const Signup = () => {
 
 
                <div className='mt-7'>
-              <button type='submit' className='btn w-full rounded-lg'>
-                signup
+              <button disabled={loading && true} type='submit' className='btn w-full rounded-lg'>
+                {loading ? "Loading..." : 'Signup'}
               </button>
               </div>
 
@@ -152,3 +191,14 @@ const Signup = () => {
 }
 
 export default Signup
+
+
+// import React from 'react'
+
+// const Signup = () => {
+//   return (
+//     <div>Signup</div>
+//   )
+// }
+
+// export default Signup
